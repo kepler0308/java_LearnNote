@@ -100,3 +100,105 @@ BufferedOutputStream bos = new BufferedOutputStream(out);	//定义缓存流
 PrintStream ps = new PrintStream(bos);	//定义打印流
 ```
 
+
+
+### 对象流与序列化
+
+什么时候需要序列化：
+
+1、把对象保存到文件中（存储到物理介质）
+
+2、对象需要在网络上传输时。
+
+对象序列化后，把对象写入文件，实际是写入类名，属性名，属性类型，属性的值等。反序列就是将这些内容读取出来，还原成对象。
+
+```java
+Dog dog = new Dog("wangcai",2,"公");		//对象序列化，并写入文件
+File file = new File("C:\\dog.obj");
+OutputStream out = new FileOutputStream(file);
+ObjectOutputStream oos = new ObjectOutputStream(out);
+oos.writeObject(dog);
+oos.close();
+
+InputStream in = new FileInputStream(file);
+ObjectInputStream ois = new ObjectInputStream(in);
+Dog dog = ois.readObject(dog);
+ois.close();
+```
+
+如果一个类创建的对象需要序列化，那么这个类需要实现Serializable接口。如果不实现，程序会抛出NotSerializableException异常。
+
+```java
+public class Dog implements Serializable{
+    private ...
+}
+```
+
+使用transient关键字修饰变量，可以使对象存储时，被修饰的变量的值不需要维持（被修饰的值不会被存储）
+
+```java
+private transient int id;	//存储时，id的值不会被存储，取出时为int类型默认值0
+```
+
+
+
+### 字节数组流
+
+字符数组流是基于内存（RAM）操作，内部维护着一个字节数组，可以用来操作数组，非常方便。由于是基于内存的，所以无需关闭，也不会引起IO异常。
+
+```java
+String s = "2131455as11qwsd123fdsfJOIION123!@#$%^&IZC";	//通过字节数组流提取字符串中的字母
+ByteArrayInputStream bais = new ByteArrayInputStream(s.getBytes());
+ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+int curr = -1;	//定义读取到的数据
+//需要注意read方法和之前不同，返回为读取到的数据，而不是读取数据的长度
+while((curr = bais.read())!=-1) {	
+    if((curr>=65 && curr<=90) || (curr>=97 && curr<=122)) {
+        baos.write(curr);
+    }
+}
+
+//不需要关闭，因为是基于内存（Ram）的，也不会引起IO异常
+System.out.println(baos.toString());
+System.out.println(baos.toString().length());
+```
+
+ByteArrayInputStream类的read()方法如下
+
+```java
+public synchronized int read() {	//pos为当前读取长度，count为总长度
+	return (pos < count) ? (buf[pos++] & 0xff) : -1;
+}
+```
+
+
+
+### 数据流
+
+数据流可以用来操作与机器无关的java基本数据类型（int char byte boolean ...）
+
+```java
+File file = new File("C:\\java_test\\filetest\\data.dat");
+
+OutputStream out = new FileOutputStream(file);		//数据输入流的用法
+DataOutputStream dos = new DataOutputStream(out);
+
+dos.writeInt(10);	//4字节
+dos.writeInt(14);	//4字节
+dos.writeChar(62);	//2字节
+dos.writeUTF("云");	//5字节
+
+dos.close();
+
+InputStream in = new FileInputStream(file);
+DataInputStream dis = new DataInputStream(in);
+
+int num = dis.readInt();	//注意要按照存的顺序进行取，不然会出现乱码
+int num2= dis.readInt();	//如果少取了数据（比如num2不取），会出现EOFException异常
+char c  = dis.readChar();
+String s= dis.readUTF();
+
+dis.close();
+```
+
