@@ -204,7 +204,7 @@ dis.close();
 
 
 
-### 练习----文件分割与合并
+### 文件分割
 
 文件分割主要流程：
 
@@ -229,3 +229,35 @@ if(cutSize < (1024 * 8)) {
 4、读取文件数据到字节数组中，然后写入到创建的小文件中。
 
 5、完成操作，之后关闭流。
+
+
+
+### 文件合并
+
+使用SequenceInputStream类可以方便的进行流合并
+
+```java
+//SequenceInputStream类可以自动的将流合并，es是一个文件输入流的集合
+//也可以通过SequenceInputStream(InputStream s1,InputStream s2)构造方法
+SequenceInputStream sis = new SequenceInputStream(es);
+```
+
+
+
+### 字符串流
+
+以一个字符串为数据源，来构造一个字符流
+
+```java
+String info = "good good study day day up";
+StringReader sr = new StringReader(info);	//构建字符串流
+StreamTokenizer st = new StreamTokenizer(sr); //构建流标记器
+```
+
+在web开发中，经常需要对字符串进行处理，此时，需要构建字符串流，然后使用第三方的数据解析器来解析数据。
+
+
+
+### 管道流
+
+多线程之间的通讯，暂时不学习，因为会用到多线程的知识，学习完多线程后重新学习。
