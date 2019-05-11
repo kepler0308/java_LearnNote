@@ -147,7 +147,7 @@ private transient int id;	//存储时，id的值不会被存储，取出时为in
 字符数组流是基于内存（RAM）操作，内部维护着一个字节数组，可以用来操作数组，非常方便。由于是基于内存的，所以无需关闭，也不会引起IO异常。
 
 ```java
-String s = "2131455as11qwsd123fdsfJOIION123!@#$%^&IZC";	//通过字节数组流提取字符串中的字母
+String s = "2131455as11qwsd123fdN123!@#$%^&IZC";	//通过字节数组流提取字符串中的字母
 ByteArrayInputStream bais = new ByteArrayInputStream(s.getBytes());
 ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
@@ -261,3 +261,73 @@ StreamTokenizer st = new StreamTokenizer(sr); //构建流标记器
 ### 管道流
 
 多线程之间的通讯，暂时不学习，因为会用到多线程的知识，学习完多线程后重新学习。
+
+
+
+### RandonAccessFile类
+
+随机存取类（也叫直接存取），可以同时进行读写。现在被NIO类替代了，但以前的项目可能会使用，需要了解。具体的使用方法和之前流类似，有一些方法可以对文件进行截取操作，具体需要查阅API文档。
+
+```java
+//构造方法第一个参数可以传文件（不会覆盖，自动添加）或者字符串路径（会自动创建文件）
+//第二个参数是读写控制位，但只能传参数"r", "rw", "rws", or "rwd"
+RandomAccessFile r = new RandomAccessFile("C:\\kepler.txt", "r");
+RandomAccessFile w = new RandomAccessFile("C:\\java_test\\kepler.txt","rw");
+```
+
+
+
+### Properties类（属性文件）
+
+Properties类可以对.properties结尾的属性文件进行读写操作，这样可以通过修改配置文件，来更改程序中的内容，不用重新打包程序。
+
+.properties文件格式如下，一般是“key-value”格式。
+
+```properties
+app.version=1.1
+db.username=kepler
+db.password=12345
+```
+
+读操作：
+
+```java
+Properties p = new Properties();
+InputStream in = new FileInputStream("config.properties");
+p.load(in);	//加载属性文件
+			
+version = p.getProperty("app.version");		//通过key值，读取value
+username = p.getProperty("db.username");
+password = p.getProperty("db.password");
+in.close();	//记得关闭文件流
+```
+
+写操作稍微复杂一些：
+
+```java
+Properties p = new Properties();
+p.put("app.version",version);	//输入需要向属性文件添加的key-value值
+p.put("db.username",username);
+p.put("db.password",password);
+
+OutputStream out = new FileOutputStream("config.properties");
+p.store(out, "config updata"); //写文件
+out.close();
+```
+
+Tips1:可以将属性文件的读操作放在static代码块，这样代码只会执行一次。
+
+```java
+static{
+    readConfig();	//方法类型应该是static
+}
+```
+
+Tips2:当属性文件不再文件的根目录下，而是单独的package下，文件流需要用以下方法定义。
+
+```java
+//项目的class文件放在com/kepler下，属性文件放在com/res下，需要用一下方法创建文件流
+InputStream in = Thread.currentThread().
+	getContextClassLoader().getResourceAsStream("com/res/config.properties");
+```
+
