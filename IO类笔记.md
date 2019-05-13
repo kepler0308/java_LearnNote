@@ -331,3 +331,25 @@ InputStream in = Thread.currentThread().
 	getContextClassLoader().getResourceAsStream("com/res/config.properties");
 ```
 
+
+
+### 文件压缩与解压
+
+通过ZipOutputStream类对文件进行压缩。
+
+```java
+//创建压缩文件流，并创建buffer类，提高压缩效率
+ZipOutputStream out = new ZipOutputStream(new FileOutputStream(zipFileName));
+BufferedOutputStream bos = new BufferedOutputStream(out);
+//压缩文件的方法。
+//参数为：压缩文件流、需要压缩的文件（或文件夹）、需要压缩的文件（文件夹）名字、压缩文件缓冲流
+zip(out,targetFile,targetFile.getName(),bos);	
+
+bos.close();
+out.close();
+```
+
+zip()方法的流程如下，需要借助递归的方法，流程如下（没装visvo，简单画一下）:
+
+
+
