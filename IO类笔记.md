@@ -30,7 +30,9 @@ Writer out= new FileWriter(file);
 
 ### 字符流和字节流的相互转换
 
-![1557149627586](C:\Users\kepler\AppData\Roaming\Typora\typora-user-images\1557149627586.png)
+![](https://raw.githubusercontent.com/kepler0308/java_LearnNote/master/img/%E5%AD%97%E7%AC%A6%E6%B5%81%E5%AD%97%E8%8A%82%E6%B5%81%E8%BD%AC%E6%8D%A2.jpg)
+
+
 
 使用InputStreamReader和OutputStreamWriter进行转换
 
@@ -351,9 +353,9 @@ out.close();
 
 zip()方法的流程如下，需要借助递归的方法，流程如下（没装visvo，简单画一下）:
 
-![](https://github.com/kepler0308/java_LearnNote/blob/master/img/file_compression.jpg)
+![](https://raw.githubusercontent.com/kepler0308/java_LearnNote/master/img/file_compression.jpg)
 
-具体代码如下
+通过putNextEntry()方法可以将文件及其目录添加进压缩流，具体代码如下：
 
 ```java
 private static void zip(ZipOutputStream zOut, File targetFile, String name, BufferedOutputStream bos) throws IOException {
@@ -380,5 +382,33 @@ private static void zip(ZipOutputStream zOut, File targetFile, String name, Buff
 			bis.close();
 		}
 	}
+```
+
+文件的解压则通过ZipInputStream类完成，通过getNextEntry方法可以将压缩时输入文件的名称及路径获取出来，具体方法如下:
+
+```java
+//targetFileName是需要解压的文件，parent是解压到的文件夹
+ZipInputStream zIn = new ZipInputStream(new FileInputStream(targetFileName));
+ZipEntry entry = null;	//如果放进循环中会不断创建新的类，所以程序中的类尽量写在文件外面。
+File file = null;
+
+//依次读取压缩进去的文件机器目录
+while((entry = zIn.getNextEntry())!=null /*&& !entry.isDirectory()*/) {
+    file = new File(parent,entry.getName());	//文件的构造方法，参数为父路径和文件名
+    if(!file.exists()) {	//判断文件或文件目录不存在
+        new File(file.getParent()).mkdirs();	//创建文件和其文件目录
+    }
+    OutputStream out = new FileOutputStream(file);
+    BufferedOutputStream bos = new BufferedOutputStream(out);
+    byte[] bytes = new byte[1024];
+    int len = -1;
+    while((len = zIn.read(bytes)) != -1) {
+        bos.write(bytes,0,len);
+    }
+    bos.close();
+    System.out.println(file.getAbsolutePath()+"解压成功");
+    }
+	zIn.close();
+}
 ```
 
