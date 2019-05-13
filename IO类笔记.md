@@ -351,5 +351,34 @@ out.close();
 
 zip()方法的流程如下，需要借助递归的方法，流程如下（没装visvo，简单画一下）:
 
-![](https://github.com/kepler0308/java_LearnNote/blob/master/img/%E6%96%87%E4%BB%B6%E5%8E%8B%E7%BC%A9.jpg)
+![](https://github.com/kepler0308/java_LearnNote/blob/master/img/file_compression.jpg)
+
+具体代码如下
+
+```java
+private static void zip(ZipOutputStream zOut, File targetFile, String name, BufferedOutputStream bos) throws IOException {
+		if(targetFile.isDirectory()) {	//判断为文件夹
+			File[] files = targetFile.listFiles();	//读取文件夹中的文件
+			
+			if(files.length == 0) {		//判断为空文件夹
+				zOut.putNextEntry(new ZipEntry(name+"/"));
+			}
+			for(File f:files) {
+				//System.out.println(f.getName());
+				zip(zOut,f,name+"/"+f.getName(),bos);		//递归处理
+			}
+		}else {		//如果是文件
+			zOut.putNextEntry(new ZipEntry(name));		//添加到压缩流中
+			InputStream in = new FileInputStream(targetFile);
+			BufferedInputStream bis = new BufferedInputStream(in);
+			
+			byte[] bytes = new byte[1024];
+			int len = -1;
+			while((len = bis.read(bytes)) != -1) {
+				bos.write(bytes, 0, len);
+			}
+			bis.close();
+		}
+	}
+```
 
