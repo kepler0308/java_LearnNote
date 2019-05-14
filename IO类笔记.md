@@ -412,3 +412,133 @@ while((entry = zIn.getNextEntry())!=null /*&& !entry.isDirectory()*/) {
 }
 ```
 
+
+
+### 常见的字符编码
+
+常见的编码：
+
+1、ISO8859-1	英文，单字节编码
+
+2、GBK/GB2312	中文，双字节编码
+
+3、unicode	java中使用的编码，使用16位表示的编码，不支持ISO8859-1编码
+
+4、UTF	可以用来表示所有语言编码，不定长，1-6个字节不等
+
+
+
+造成乱码的原因：
+
+1、程序使用的编码与本机的编码不统一
+
+2、在网络中，客户端与服务器端编码不统一
+
+
+
+### NIO类
+
+NIO是jdk1.4新加入的包，可以实现高速的I/O操作，NIO将最耗时的I/O操作转移回操作系统，极大的提高了速度。NIO以块的方式处理数据。
+
+NIO处理数据是通过缓冲区的，任何读取和写入都是对接缓冲区，缓冲区包括以下：
+
+```java
+ByteBuffer
+CharBuffer
+ShortBuffer
+IntBuffer
+LongBuffer
+FloatBuffer
+DoubleBuffer
+```
+
+对缓冲区操作如下：
+
+```java
+ByteBuffer buf = ByteBuffer.allocate(8); //定义一个缓冲区，申请内存8个字节
+		
+buf.put((byte)10);
+buf.put((byte)20);
+buf.put((byte)30);
+buf.put((byte)40);
+
+buf.flip();		//缓冲区反转,即将buffer截断，将原本8个内存空间，截取0到已经存了数据的位置。
+if(buf.hasRemaining()) {	//判断缓冲区是否存了数据
+    for(int i = 0;i < buf.remaining();i ++) {
+        byte b = buf.get(i);
+        System.out.println(b);
+    }
+}
+```
+
+缓冲区有三个比较重要的参数
+
+```java
+position	//当前数据的下标	初始为0，每put一位增加1
+limit		//当前缓冲区最后一位	初始与申请内存空间相等
+capacity	//缓冲区最后一位的下标 不变，与申请内存空间相等
+    
+public final Buffer flip() {	//反转操作，就是将缓冲区最后一位变成已经存完的下标
+        limit = position;
+        position = 0;
+        mark = -1;
+        return this;
+}
+```
+
+
+
+NIO进行文件操作就是通过Channel类对Buffer进行读写操作。
+
+```java
+FileChannel fcIn = new FileInputStream("C:\\java_test\\123.jpg").getChannel();
+FileChannel fcOut = new FileOutputStream("C:\\123.jpg").getChannel();
+		
+ByteBuffer buf = ByteBuffer.allocate(1024);
+
+while(fcIn.read(buf) != -1) {
+    buf.flip();		//缓冲区反转
+    fcOut.write(buf);
+    buf.clear();	//清除缓冲区
+}
+
+fcIn.close();
+fcOut.close();
+```
+
+使用RandomAccessFile进行内存映射操作
+
+```java
+RandomAccessFile in = new RandomAccessFile("C:\\java_test\\123.jpg", "r");
+RandomAccessFile out = new RandomAccessFile("C:\\123.jpg", "rw");
+
+FileChannel fcIn = in.getChannel();
+FileChannel fcOut = out.getChannel();
+
+long size = fcIn.size();
+//输入流缓冲区
+MappedByteBuffer inBuf = fcIn.map(MapMode.READ_ONLY, 0, size);
+//输出流缓冲区
+MappedByteBuffer outBuf = fcOut.map(MapMode.READ_WRITE, 0, size);
+
+for(int i = 0;i < size;i ++) {
+    outBuf.put(inBuf.get());
+}
+//关闭通道自动写入数据块
+fcIn.close();
+fcOut.close();
+in.close();
+out.close();
+```
+
+
+
+### IO类的操作速度
+
+1、内存映射
+
+2、NIO操作
+
+3、使用了Buffered的IO操作
+
+4、不使用Buffered的IO操作
