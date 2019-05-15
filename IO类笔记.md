@@ -1,7 +1,5 @@
 # IO类笔记
 
-## 1、文件读写操作
-
 ### 文件定义
 
 ```java
@@ -537,8 +535,47 @@ out.close();
 
 1、内存映射
 
-2、NIO操作
+### 2、NIO操作
 
 3、使用了Buffered的IO操作
 
 4、不使用Buffered的IO操作
+
+
+
+### Path接口和Files工具类
+
+使用方法如下，Files类是用NIO方法进行文件操作。
+
+```java
+File file = new File("C:\\java_test\\filetest\\123.jpg");
+		
+Path p1 = Paths.get("C:\\java_test\\filetest\\", "123.jpg");	//创建path类
+System.out.println(p1);
+
+Path p2 = file.toPath(); //File类转换成path类
+System.out.println(p2);
+
+Path p3 = Paths.get("C:\\java_test\\filetest\\kepler.txt");
+String info = "云想衣裳花想容，春风拂槛露华浓";
+Files.write(p3, info.getBytes("GBK"), StandardOpenOption.APPEND);	//文件写入
+
+byte[] bytes = Files.readAllBytes(p3);		//文件读取
+System.out.println(new String(bytes));	
+
+//文件复制
+Files.copy(p1, Paths.get("C:\\java_test\\123.jpg"), StandardCopyOption.REPLACE_EXISTING);
+//文件移动
+Files.move(p1, Paths.get("C:\\java_test\\123.jpg"), StandardCopyOption.REPLACE_EXISTING);
+
+Files.delete(p1); 		//文件删除		会抛出异常
+Files.deleteIfExists(p1);	//文件删除  	不会抛出异常
+
+//创建目录，除了要创建的文件夹，路径必须存在
+Files.createDirectory(Paths.get("C:/java_test/BB"));	
+//创建目录，如果路径不存在会自动创建路径
+Files.createDirectories(Paths.get("C:/java_test/AA/BB"));
+//创建空文件
+Files.createFile(Paths.get("C:/java_test/BB/C.txt"));
+```
+
