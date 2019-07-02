@@ -329,6 +329,11 @@ Tips2:当属性文件不再文件的根目录下，而是单独的package下，�
 //项目的class文件放在com/kepler下，属性文件放在com/res下，需要用一下方法创建文件流
 InputStream in = Thread.currentThread().
 	getContextClassLoader().getResourceAsStream("com/res/config.properties");
+
+//方法2：获取路径
+ClassLoader classLoader = JDBCUtils.class.getClassLoader();
+URL res = classLoader.getResource("info.properties");
+String path = res.getPath();
 ```
 
 
